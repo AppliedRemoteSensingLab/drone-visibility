@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#113b4d">
+  <meta name="description" content="Offline drone visibility observer log: tap when a drone becomes visible or is lost, then export research-ready CSV files.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Drone Visibility">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" href="./icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+  <title>Drone Visibility | Observer Logger</title>
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <div class="brand-mark" aria-hidden="true">DV</div>
+      <div class="brand-text">
+        <h1>Drone Visibility</h1>
+        <p>Field observer logger</p>
+      </div>
+      <span class="connection-status" id="connectionStatus" role="status">Checking offline access</span>
+    </header>
+
+    <main>
+      <section id="setupCard" class="panel" aria-labelledby="setupHeading">
+        <div class="section-eyebrow">FIELD SETUP</div>
+        <h2 id="setupHeading">Start a flight</h2>
+        <div class="input-stack">
+          <label for="observerId">Observer ID</label>
+          <input id="observerId" name="observerId" type="text" autocomplete="off" autocapitalize="words"
+                 maxlength="40" placeholder="e.g., OBS-01" spellcheck="false" required>
+          <div class="two-col">
+            <div>
+              <label for="droneSelect">Drone</label>
+              <select id="droneSelect" name="droneSelect" required></select>
+            </div>
+            <div>
+              <label for="flightNumber">Flight / pass #</label>
+              <input id="flightNumber" name="flightNumber" type="number" min="1" max="999" step="1" inputmode="numeric" value="1" required>
+            </div>
+          </div>
+        </div>
+        <button id="startRun" class="primary-btn start-btn" type="button">Start flight log</button>
+        <p class="hint">Press Start at the agreed flight-start cue, then tap green or red whenever your visibility changes. No need to speak.</p>
+      </section>
+
+      <section id="recordingCard" class="panel recording-panel" aria-labelledby="recordingHeading" hidden>
+        <div class="recording-top">
+          <div>
+            <div class="live-label"><span class="live-dot" aria-hidden="true"></span> RECORDING</div>
+            <h2 id="recordingHeading">M3E · Flight 1</h2>
+            <p class="small-copy" id="recordingObserver">Observer</p>
+          </div>
+          <div class="timer-wrap">
+            <span class="timer-label">Elapsed time</span>
+            <strong class="timer" id="runTimer" aria-live="off">00:00:00</strong>
+          </div>
+        </div>
+        <p class="tap-instruction">Tap only when the drone <strong>enters</strong> or <strong>leaves</strong> your view.</p>
+        <div class="event-buttons" role="group" aria-label="Record visibility observation">
+          <button type="button" class="event-button visible-button" id="visibleButton">
+            <span class="event-symbol" aria-hidden="true">●</span>
+            <span class="event-main">DRONE IN VIEW</span>
+            <span class="event-sub">I can see it now</span>
+          </button>
+          <button type="button" class="event-button lost-button" id="lostButton">
+            <span class="event-symbol" aria-hidden="true">×</span>
+            <span class="event-main">NOT IN VIEW</span>
+            <span class="event-sub">I can no longer see it</span>
+          </button>
+        </div>
+        <div id="currentState" class="current-state" role="status" aria-live="polite">No visibility observation yet</div>
+        <div class="recording-controls">
+          <button id="undoButton" type="button" class="secondary-btn">Undo last tap</button>
+          <button id="endRun" type="button" class="secondary-btn">End flight log</button>
+        </div>
+      </section>
+
+      <section class="panel export-panel" aria-labelledby="dataHeading">
+        <div class="section-eyebrow">DATA ON THIS PHONE</div>
+        <div class="data-heading-row">
+          <h2 id="dataHeading">Saved observations</h2>
+          <span class="saved-pill" id="saveStatus" role="status">Stored locally</span>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><strong id="observationCount">0</strong><span>valid observations</span></div>
+          <div class="stat"><strong id="flightCount">0</strong><span>flight logs</span></div>
+        </div>
+        <div class="export-actions">
+          <button id="shareCsv" type="button" class="primary-btn export-btn">Share / Save CSV</button>
+          <button id="downloadCsv" type="button" class="secondary-btn export-btn">Download CSV</button>
+        </div>
+        <p class="hint">Export after each session. Your observations stay on this device, even without internet. Sharing/emailing can wait until you have service.</p>
+        <div class="recent-header">
+          <h3>Most recent taps</h3>
+          <span id="lastRecordedTime"></span>
+        </div>
+        <ol class="recent-list" id="recentList" aria-live="polite">
+          <li class="empty-list">No observations yet.</li>
+        </ol>
+      </section>
+
+      <details class="panel more-panel">
+        <summary>Instructions &amp; data management</summary>
+        <div class="details-body">
+          <h3>Before the field day</h3>
+          <p>Open this HTTPS website while online, add it to your home screen, then <strong>open that new home-screen icon while still online</strong>. Check for “Offline ready” above. Test it in airplane mode before field work.</p>
+          <h3>During flight</h3>
+          <p>Use one phone per observer. Keep phone clocks set to automatic date and time. Start each flight at the same pilot cue, then tap green when you can see the drone and red when you cannot. Repeat as often as visibility changes. An accidental tap can be marked void using Undo.</p>
+          <h3>After flight</h3>
+          <p>End the flight log; repeat for the next drone. Use Share / Save CSV to save a file to Files or share it, or use Download CSV. Export a backup before clearing anything. The CSV includes UTC, Unix milliseconds, elapsed milliseconds, flight/pass numbers, and any voided taps.</p>
+          <h3>Important</h3>
+          <p>This is a research recording aid, <strong>not</strong> a flight safety or airspace authorization system. Keep the appropriate pilot/VO procedures in place. Do not use private/incognito browsing; do not clear this site's data or uninstall the home-screen app before exporting.</p>
+          <button id="clearAll" type="button" class="danger-outline">Erase locally saved data…</button>
+        </div>
+      </details>
+    </main>
+    <footer class="footer">No accounts · No server upload · All records stay on each device until exported</footer>
+  </div>
+  <div class="toast" id="toast" role="alert" aria-live="assertive" hidden></div>
+</body>
+</html>

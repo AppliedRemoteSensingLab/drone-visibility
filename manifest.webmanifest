@@ -1,0 +1,16 @@
+{
+  "name": "Drone Visibility — Observer Logger",
+  "short_name": "Drone Visibility",
+  "description": "Offline observer event logger for drone visual acquisition and loss",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef4f5",
+  "theme_color": "#113b4d",
+  "orientation": "any",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
